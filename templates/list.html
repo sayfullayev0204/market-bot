@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Your Page Title</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Optional: Add your custom styles here -->
+    <style>
+        /* Custom styles (if needed) */
+    </style>
+</head>
+<body>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>City</th>
+                <th>Product</th>
+                <th>Region</th>
+                <th>Type</th>
+                <th>Payment Amount</th>
+                <th>Receipt Photo</th>
+                <th>Confirmed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.user.name }}</td>
+                <td>{{ order.shaxar.nomi }}</td>
+                <td>{{ order.mahsulot.nomi }}</td>
+                <td>{{ order.rayon.nomi }}</td>
+                <td>{{ order.korinish.nomi }}</td>
+                <td>{{ order.payment_amount }}</td>
+                <td>
+                    {% if order.receipt_photo %}
+                        <img src="https://api.telegram.org/file/bot{{ YOUR_BOT_TOKEN }}/{{ order.receipt_photo }}" alt="Receipt" class="img-fluid" style="max-width: 200px;">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if order.confirmed %}
+                        <span class="badge badge-success">Confirmed</span>
+                    {% else %}
+                        <span class="badge badge-danger">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not order.confirmed %}
+                    <form method="post" action="{% url 'confirm_payment' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                        <button type="submit" class="btn btn-success btn-sm">Confirm Payment</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
