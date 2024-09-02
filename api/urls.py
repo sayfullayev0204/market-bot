@@ -1,6 +1,6 @@
 # urls.py
 from django.urls import path
-from .views import register_user,order_list, check_user,OrderViewSet,ShaxarViewSet, MahsulotViewSet, RayonViewSet, KorinishViewSet, check_user, create_order, confirm_payment, check_order_id
+from .views import *
 
 urlpatterns = [
     path('users/', register_user, name='user-register'),
@@ -24,8 +24,35 @@ urlpatterns = [
     
     
     path('order/<str:order_id>/', OrderViewSet.as_view({'get': 'retrieve','delete': 'destroy'}), name='order-delete'),
-    path('orders/', order_list, name='order-list'),
+    path('orders/', order_list, name='list'),
+    path('orders/<int:pk>/', order_detail, name='detail'),
 
     path('orders/confirm_payment/<str:order_id>/', confirm_payment, name='confirm_payment'),
+
+
+
+    # URLs for Shaxar
+    path('shaxarlar/', shaxar_list, name='shaxar_list'),
+    path('shaxarlar/<int:pk>/', shaxar_edit_delete, name='shaxar_edit_delete'),
+
+    # URLs for Mahsulot
+    path('mahsulotlar/', mahsulot_list, name='mahsulot_list'),
+    path('mahsulotlar/<int:pk>/', mahsulot_edit_delete, name='mahsulot_edit_delete'),
+
+    # URLs for Rayon
+    path('rayonlar/', rayon_list, name='rayon_list'),
+    path('rayonlar/<int:pk>/', rayon_edit_delete, name='rayon_edit_delete'),
+
+    # URLs for Korinish
+    path('korinishlar/', korinish_list, name='korinish_list'),
+    path('korinishlar/<int:pk>/', korinish_edit_delete, name='korinish_edit_delete'),
+
+
+    path('admin/auth/user/add/', add_admin_view, name='add_admin'),
+    path('accounts/login/', login_view, name='login'),
+    path('', home, name='home'),
 ]
+
+
+
 

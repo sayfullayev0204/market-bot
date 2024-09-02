@@ -2,72 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Your Page Title</title>
-
-    <!-- Bootstrap CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Optional: Add your custom styles here -->
-    <style>
-        /* Custom styles (if needed) */
-    </style>
 </head>
 <body>
-    <table class="table table-bordered table-hover">
-        <thead class="thead-dark">
-            <tr>
-                <th>Order ID</th>
-                <th>User</th>
-                <th>City</th>
-                <th>Product</th>
-                <th>Region</th>
-                <th>Type</th>
-                <th>Payment Amount</th>
-                <th>Receipt Photo</th>
-                <th>Confirmed</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.order_id }}</td>
-                <td>{{ order.user.name }}</td>
-                <td>{{ order.shaxar.nomi }}</td>
-                <td>{{ order.mahsulot.nomi }}</td>
-                <td>{{ order.rayon.nomi }}</td>
-                <td>{{ order.korinish.nomi }}</td>
-                <td>{{ order.payment_amount }}</td>
-                <td>
-                    {% if order.receipt_photo %}
-                        <img src="https://api.telegram.org/file/bot{{ YOUR_BOT_TOKEN }}/{{ order.receipt_photo }}" alt="Receipt" class="img-fluid" style="max-width: 200px;">
-                    {% endif %}
-                </td>
-                <td>
-                    {% if order.confirmed %}
-                        <span class="badge badge-success">Confirmed</span>
-                    {% else %}
-                        <span class="badge badge-danger">Pending</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not order.confirmed %}
-                    <form method="post" action="{% url 'confirm_payment' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="order_id" value="{{ order.order_id }}">
-                        <button type="submit" class="btn btn-success btn-sm">Confirm Payment</button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <div class="container">
+        <h1 class="mb-4">Order List</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>City</th>
+                        <th>Product</th>
+                        <th>Region</th>
+                        <th>Type</th>
+                        <th>Confirmed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_id }}</td>
+                        <td>{{ order.user.name }}</td>
+                        <td>{{ order.shaxar.nomi }}</td>
+                        <td>{{ order.mahsulot.nomi }}</td>
+                        <td>{{ order.rayon.nomi }}</td>
+                        <td>{{ order.korinish.nomi }}</td>
+                        <td>
+                            {% if order.confirmed %}
+                                <span class="badge badge-success">Confirmed</span>
+                            {% else %}
+                                <span class="badge badge-danger">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="action-buttons">
+                            {% if not order.confirmed %}
+                            <a href="{% url 'detail' order.pk %}" class="btn btn-success">Tasdiqlash</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+<style>
+    /* Container styling */
+.container {
+    padding: 15px;
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS devices */
+}
+
+/* Table styling */
+.table {
+    width: 100%; /* Full width to fit the container */
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 12px; /* Add padding for better readability */
+    text-align: left; /* Align text to the left */
+    border: 1px solid #dee2e6; /* Border for table cells */
+}
+
+.table thead th {
+    background-color: #343a40; /* Dark background for the header */
+    color: #fff; /* White text color for the header */
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: #f8f9fa; /* Light background for odd rows */
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #ffffff; /* White background for even rows */
+}
+
+.table .badge-success {
+    background-color: #28a745; /* Green background for confirmed badge */
+    color: #fff; /* White text color for badge */
+}
+
+.table .badge-danger {
+    background-color: #dc3545; /* Red background for pending badge */
+    color: #fff; /* White text color for badge */
+}
+
+.table .btn-success {
+    background-color: #28a745; /* Green background for button */
+    border-color: #28a745; /* Border color for button */
+    color: #fff; /* White text color for button */
+}
+
+.table .btn-success:hover {
+    background-color: #218838; /* Darker green on hover */
+    border-color: #1e7e34; /* Darker border color on hover */
+}
+
+.table .action-buttons a {
+    text-decoration: none; /* Remove underline from links */
+}
+
+</style>    
 </body>
 </html>

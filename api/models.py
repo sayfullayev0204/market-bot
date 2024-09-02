@@ -21,14 +21,14 @@ class Mahsulot(models.Model):
     narxi = models.IntegerField()
 
     def __str__(self):
-        return self.nomi
+        return f"{self.shaxar.nomi}ga {self.nomi}"
 
 class Rayon(models.Model):
     mahsulot = models.ForeignKey(Mahsulot, on_delete=models.CASCADE)
     nomi = models.CharField(max_length=300)
 
     def __str__(self):
-        return self.nomi
+        return f"{self.mahsulot.shaxar.nomi}ga {self.nomi} tumaniga {self.mahsulot.nomi}"
 
 class Korinish(models.Model):
     rayon = models.ForeignKey(Rayon, on_delete=models.CASCADE)
@@ -39,18 +39,19 @@ class Korinish(models.Model):
 
 
 class Order(models.Model):
+    order_id = models.CharField(max_length=8, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shaxar = models.ForeignKey(Shaxar, on_delete=models.CASCADE)
     mahsulot = models.ForeignKey(Mahsulot, on_delete=models.CASCADE)
     rayon = models.ForeignKey(Rayon, on_delete=models.CASCADE)
     korinish = models.ForeignKey(Korinish, on_delete=models.CASCADE)
-    order_id = models.CharField(max_length=8, unique=True)
-    confirmed = models.BooleanField(default=False)
-    payment_received = models.BooleanField(default=False)
-    admin_confirmed = models.BooleanField(default=False)
-    payment_amount = models.IntegerField(null=True, blank=True)
-    receipt_photo = models.ImageField('chek/', null=True, blank=True) 
     created_at = models.DateTimeField(auto_now_add=True)
+    confirmed = models.BooleanField(default=False)
+    
+    # New fields for payment
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    receipt_image = models.ImageField(upload_to='receipts/', null=True, blank=True)
+
     def save(self, *args, **kwargs):
         if not self.order_id:
             self.order_id = self.generate_unique_id()

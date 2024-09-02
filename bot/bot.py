@@ -1,6 +1,5 @@
 import random
 from io import BytesIO
-from time import timezone
 import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import BufferedInputFile
@@ -11,7 +10,7 @@ import asyncio
 from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardButton
 
 API_TOKEN = '6804578580:AAEdX8AJJP5-mhmM04XTonBr_SQ9HWR1pAU'
-API_ENDPOINT = 'http://127.0.0.1:8000/api/' 
+API_ENDPOINT = 'http://127.0.0.1:8000/'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
@@ -20,6 +19,8 @@ router = Router()
 
 user_captchas = {}
 user_data = {}
+order_message_ids = {}
+
 def generate_captcha():
     """Generate a random 6-digit number and create an image with a background."""
     captcha_text = str(random.randint(100000, 999999))
@@ -90,7 +91,6 @@ async def check_captcha(message: types.Message):
             await message.answer("Kod xato. Qayta urinib ko'ring.")
     else:
         await message.answer("Iltimos, /start buyrug'ini kiriting.")
-
 
 @router.message(Command("start"))
 async def send_city_selection(message: types.Message):
@@ -191,7 +191,6 @@ async def create_order(call: types.CallbackQuery):
         created_at = response_data.get('created_at')
         user_name = response_data.get('user_name')  
 
-
         order_details = (
             f"Buyurtma yaratildi:\n"
             f"Order ID: {order_id}\n"
@@ -208,19 +207,34 @@ async def create_order(call: types.CallbackQuery):
             [InlineKeyboardButton(text="Buyurtmani bekor qilish", callback_data=f"cancel_order_{order_id}")]
         ])
 
-        await call.message.answer(order_details, reply_markup=keyboard)
+        # Send the order details message and store its message ID
+        order_message = await call.message.answer(order_details, reply_markup=keyboard)
+        order_message_ids[user_id] = order_message.message_id
+
     else:
         await call.message.answer("Buyurtma yaratishda xatolik yuz berdi.")
 
 @router.callback_query(lambda call: call.data.startswith("cancel_order_"))
 async def cancel_order(call: types.CallbackQuery):
+    user_id = call.from_user.id
     order_id = call.data.split("_")[2]
+    
+    # Delete the order details message
+    if user_id in order_message_ids:
+        chat_id = call.message.chat.id
+        try:
+            await bot.delete_message(chat_id, order_message_ids[user_id])
+        except Exception as e:
+            print(f"Failed to delete message: {e}")
+    
     response = requests.delete(f'{API_ENDPOINT}order/{order_id}/')
 
     if response.status_code == 204:
         await call.message.answer(f"Buyurtma ID: #{order_id} bekor qilindi va o'chirildi.")
+        await send_city_selection(call.message)
     else:
         await call.message.answer("Buyurtmani bekor qilishda xatolik yuz berdi.")
+
 @router.callback_query(lambda call: call.data.startswith("pay_order_"))
 async def handle_payment(call: types.CallbackQuery):
     order_id = call.data.split("_")[2]

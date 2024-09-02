@@ -1,14 +1,17 @@
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
-import requests
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render,redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import status,viewsets
 from .models import User, Shaxar, Mahsulot, Rayon, Korinish, Order
 from .serializers import UserSerializer, ShaxarSerializer, MahsulotSerializer, RayonSerializer, KorinishSerializer, OrderSerializer
 import threading
 import time
+from .forms import ShaxarForm, MahsulotForm, RayonForm, KorinishForm
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login
 
 @api_view(['POST'])
 def register_user(request):
@@ -100,37 +103,29 @@ def cancel_order_after_timeout(order):
             order.delete()
 
 def notify_user_about_payment(order):
-    
+
     pass
 
-# Confirm payment
 
-TELEGRAM_BOT_TOKEN = 'your_telegram_bot_token_here'
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Order
+from .serializers import OrderSerializer
 
-def send_telegram_message(chat_id, text):
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        'chat_id': chat_id,
-        'text': text
-    }
-    requests.post(url, data=payload)
+@api_view(['PATCH'])
+def confirm_payment(request, order_id):
+    try:
+        order = Order.objects.get(order_id=order_id)
+    except Order.DoesNotExist:
+        return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
 
-def confirm_payment(request):
-    data = request.data
-    order = get_object_or_404(Order, order_id=data['order_id'])
-    order.confirmed = True
-    order.save()
-
-    # Get the user associated with the order
-    user = order.user  # Assuming there's a ForeignKey to User in the Order model
-    telegram_id = user.telegram_id
-
-    # Send a confirmation message to the user's Telegram
-    message = f"Your payment for Order #{order.order_id} has been confirmed. Thank you!"
-    send_telegram_message(telegram_id, message)
-
-    return Response({"status": "Payment confirmed"}, status=status.HTTP_200_OK)
-
+    serializer = OrderSerializer(order, data=request.data, partial=True)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def check_order_id(request):
@@ -157,6 +152,184 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@login_required
+def home(request):
+    return render(request, 'home.html')
+
+@login_required
 def order_list(request):
-    orders = Order.objects.all()
+    orders = Order.objects.filter(receipt_image__isnull=False)
     return render(request, 'list.html', {'orders': orders})
+
+# Order Detail View
+@login_required
+def order_detail(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == "POST":
+        order.confirmed = True
+        order.save()
+        send_confirmation_message(order.user.telegram_id, order.order_id)
+        messages.success(request, f"Order {order.order_id} has been confirmed.")
+        return redirect('order_list')
+    return render(request, 'detail.html', {'order': order})
+
+def send_confirmation_message(telegram_id, order_id):
+    import requests
+
+    bot_token = '6804578580:AAEdX8AJJP5-mhmM04XTonBr_SQ9HWR1pAU'
+    text = f"Your order {order_id} has been confirmed!"
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    
+    data = {
+        'chat_id': telegram_id,
+        'text': text
+    }
+    
+    response = requests.post(url, data=data)
+    if response.status_code == 200:
+        print(f"Confirmation sent to {telegram_id}")
+    else:
+        print(f"Failed to send message to {telegram_id}")
+
+# CRUD Views for Shaxar
+@login_required
+def shaxar_list(request):
+    shaxarlar = Shaxar.objects.all()
+    if request.method == 'POST':
+        form = ShaxarForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shaxar_list')
+    else:
+        form = ShaxarForm()
+    return render(request, 'shaxar_list.html', {'shaxarlar': shaxarlar, 'form': form})
+
+@login_required
+def shaxar_edit_delete(request, pk):
+    shaxar = get_object_or_404(Shaxar, pk=pk)
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            form = ShaxarForm(request.POST, instance=shaxar)
+            if form.is_valid():
+                form.save()
+                return redirect('shaxar_list')
+        elif 'delete' in request.POST:
+            shaxar.delete()
+            return redirect('shaxar_list')
+    else:
+        form = ShaxarForm(instance=shaxar)
+    return render(request, 'form.html', {'form': form, 'shaxar': shaxar})
+
+# CRUD Views for Mahsulot
+@login_required
+def mahsulot_list(request):
+    mahsulotlar = Mahsulot.objects.all()
+    if request.method == 'POST':
+        form = MahsulotForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('mahsulot_list')
+    else:
+        form = MahsulotForm()
+    return render(request, 'mahsulots.html', {'mahsulotlar': mahsulotlar, 'form': form})
+
+@login_required
+def mahsulot_edit_delete(request, pk):
+    mahsulot = get_object_or_404(Mahsulot, pk=pk)
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            form = MahsulotForm(request.POST, instance=mahsulot)
+            if form.is_valid():
+                form.save()
+                return redirect('mahsulot_list')
+        elif 'delete' in request.POST:
+            mahsulot.delete()
+            return redirect('mahsulot_list')
+    else:
+        form = MahsulotForm(instance=mahsulot)
+    return render(request, 'form.html', {'form': form, 'mahsulot': mahsulot})
+
+# CRUD Views for Rayon
+@login_required
+def rayon_list(request):
+    rayonlar = Rayon.objects.all()
+    if request.method == 'POST':
+        form = RayonForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('rayon_list')
+    else:
+        form = RayonForm()
+    return render(request, 'rayon_list.html', {'rayonlar': rayonlar, 'form': form})
+
+@login_required
+def rayon_edit_delete(request, pk):
+    rayon = get_object_or_404(Rayon, pk=pk)
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            form = RayonForm(request.POST, instance=rayon)
+            if form.is_valid():
+                form.save()
+                return redirect('rayon_list')
+        elif 'delete' in request.POST:
+            rayon.delete()
+            return redirect('rayon_list')
+    else:
+        form = RayonForm(instance=rayon)
+    return render(request, 'form.html', {'form': form, 'rayon': rayon})
+
+# CRUD Views for Korinish
+@login_required
+def korinish_list(request):
+    korinishlar = Korinish.objects.all()
+    if request.method == 'POST':
+        form = KorinishForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('korinish_list')
+    else:
+        form = KorinishForm()
+    return render(request, 'korinishs.html', {'korinishlar': korinishlar, 'form': form})
+
+@login_required
+def korinish_edit_delete(request, pk):
+    korinish = get_object_or_404(Korinish, pk=pk)
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            form = KorinishForm(request.POST, instance=korinish)
+            if form.is_valid():
+                form.save()
+                return redirect('korinish_list')
+        elif 'delete' in request.POST:
+            korinish.delete()
+            return redirect('korinish_list')
+    else:
+        form = KorinishForm(instance=korinish)
+    return render(request, 'form.html', {'form': form, 'korinish': korinish})
+
+# Add Admin View
+@login_required
+def add_admin_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.is_superuser = True
+            user.is_staff = True
+            user.save()
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'add_admin.html', {'form': form})
+
+# Login View
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})

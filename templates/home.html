@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-div {
+            padding: 30px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body class="py-5">
+    <div class="container">
+        <div class="col-12">
+            <a href="{% url 'add_admin' %}" class="btn btn-success">ADD Admin</a>
+        </div>
+    </div> <br>
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-12 col-sm-6">
+                <a href="{% url 'list' %}" class="btn btn-primary w-100 custom-div">Orderlar</a>
+            </div>
+            <div class="col-12 col-sm-6">
+                <a href="{% url 'shaxar_list' %}" class="btn btn-secondary w-100 custom-div">Shaxarlar</a>
+            </div>
+            <div class="col-12 col-sm-6">
+                <a href="{% url 'mahsulot_list' %}" class="btn btn-success w-100 custom-div">Maxsulotlar</a>
+            </div>
+            <div class="col-12 col-sm-6">
+                <a href="{% url 'rayon_list' %}" class="btn btn-danger w-100 custom-div">Rayonlar</a>
+            </div>
+            <div class="col-12 col-sm-6">
+                <a href="{% url 'korinish_list' %}" class="btn btn-warning w-100 custom-div">Ko'rinishlar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
