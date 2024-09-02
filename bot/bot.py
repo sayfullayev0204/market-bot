@@ -8,6 +8,11 @@ from aiogram.filters import Command
 from PIL import Image, ImageDraw, ImageFont
 import asyncio
 from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardButton
+import aiohttp
+from aiogram.fsm.state import StatesGroup, State
+
+class PaymentStates(StatesGroup):
+    waiting_for_receipt = State()
 
 API_TOKEN = '6804578580:AAEdX8AJJP5-mhmM04XTonBr_SQ9HWR1pAU'
 API_ENDPOINT = 'http://127.0.0.1:8000/'
@@ -214,6 +219,66 @@ async def create_order(call: types.CallbackQuery):
     else:
         await call.message.answer("Buyurtma yaratishda xatolik yuz berdi.")
 
+from aiogram import types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import aiohttp
+
+@router.callback_query(lambda call: call.data.startswith("pay_order_"))
+async def handle_payment(call: types.CallbackQuery):
+    order_id = call.data.split("_")[2]
+    user_id = call.from_user.id
+    user_data[user_id]["order_id"] = order_id
+
+    # API dan barcha kartalarni olish va ularni inline button shaklida ko'rsatish
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'{API_ENDPOINT}card/') as response:
+            if response.status == 200:
+                data = await response.json()
+                card_data = data.get("results", [])
+
+                if card_data and isinstance(card_data, list) and len(card_data) > 0:
+                    # Inline buttonlar shaklida kartalar nomini ko'rsatamiz
+                    keyboard = InlineKeyboardMarkup(inline_keyboard=[])
+                    for card in card_data:
+                        keyboard.inline_keyboard.append([InlineKeyboardButton(
+                            text=card['card_name'], 
+                            callback_data=f"select_card_{card['id']}"
+                        )])
+
+                    await call.message.answer("Kartani tanlang:", reply_markup=keyboard)
+                else:
+                    await call.message.answer("Karta ma'lumotlari topilmadi yoki karta ro'yxati bo'sh.")
+            else:
+                await call.message.answer("Karta ma'lumotlarini olishda xatolik yuz berdi.")
+
+@router.callback_query(lambda call: call.data.startswith("select_card_"))
+async def display_card_details(call: types.CallbackQuery):
+    card_id = call.data.split("_")[2]
+    user_id = call.from_user.id
+
+    # Tanlangan karta ma'lumotlarini olish va ko'rsatish
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'{API_ENDPOINT}card/{card_id}/') as response:
+            if response.status == 200:
+                card = await response.json()
+                
+                card_info = (
+                    f"Card Name: {card['card_name']}\n"
+                    f"Card User: {card['card_user']}\n"
+                    f"Card Number: {card['card_number']}"
+                )
+
+                # To'lovni amalga oshirish tugmasini qo'shish
+                pay_button = InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="To'lovni amalga oshirish", callback_data=f"confirm_payment_{user_data[user_id]['order_id']}_{card_id}")]
+                ])
+                
+                await call.message.answer(f"Karta ma'lumotlari:\n{card_info}\n\nUshbu kartaga to'lovni amalga oshiring.", reply_markup=pay_button)
+            else:
+                await call.message.answer("Karta ma'lumotlarini olishda xatolik yuz berdi.")
+
+
+
 @router.callback_query(lambda call: call.data.startswith("cancel_order_"))
 async def cancel_order(call: types.CallbackQuery):
     user_id = call.from_user.id
@@ -235,61 +300,6 @@ async def cancel_order(call: types.CallbackQuery):
     else:
         await call.message.answer("Buyurtmani bekor qilishda xatolik yuz berdi.")
 
-@router.callback_query(lambda call: call.data.startswith("pay_order_"))
-async def handle_payment(call: types.CallbackQuery):
-    order_id = call.data.split("_")[2]
-    
-    user_id = call.from_user.id
-    user_data[user_id]["order_id"] = order_id
-    
-    await call.message.answer("Iltimos, to'lov summasini kiriting:")
-    await call.message.answer("To'lov summasini kiritganingizdan so'ng, chek rasmni yuboring.")
-    
-    user_data[user_id]["payment_state"] = "amount"
-
-@router.message()
-async def handle_payment_details(message: types.Message):
-    user_id = message.from_user.id
-    
-    if user_id in user_data and "payment_state" in user_data[user_id]:
-        if user_data[user_id]["payment_state"] == "amount":
-            try:
-                payment_amount = int(message.text)
-                user_data[user_id]["payment_amount"] = payment_amount
-                user_data[user_id]["payment_state"] = "receipt"
-                
-                await message.answer("Iltimos, to'lov chekining rasmni yuboring:")
-            except ValueError:
-                await message.answer("Iltimos, to'lov summasini raqam sifatida kiriting.")
-        elif user_data[user_id]["payment_state"] == "receipt":
-            if message.photo:
-                photo_id = message.photo[-1].file_id
-                user_data[user_id]["receipt_photo"] = photo_id
-                await save_payment_info(user_id)
-                await message.answer("To'lov muvaffaqiyatli qabul qilindi.")
-                user_data[user_id].pop("payment_state", None)  
-            else:
-                await message.answer("Iltimos, rasm yuboring.")
-        else:
-            await message.answer("Noaniq buyruq. Iltimos, /start buyrug'ini kiriting.")
-    else:
-        await message.answer("Iltimos, avval buyurtma yarating.")
-
-async def save_payment_info(user_id):
-    order_id = user_data[user_id]["order_id"]
-    payment_amount = user_data[user_id].get("payment_amount")
-    receipt_photo = user_data[user_id].get("receipt_photo")
-    
-    order_data = {
-        "payment_amount": payment_amount,
-        "receipt_photo": receipt_photo
-    }
-    response = requests.patch(f'{API_ENDPOINT}orders/{order_id}/', data=order_data)
-    
-    if response.status_code == 200:
-        pass
-    else:
-        print("Error updating payment information.")
 
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)

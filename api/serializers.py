@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Shaxar, Mahsulot, Rayon, Korinish, Order
+from .models import User, Shaxar, Mahsulot, Rayon, Korinish, Order,Card
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,6 +26,11 @@ class KorinishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Korinish
         fields = ['id', 'rayon', 'nomi']
+
+class CardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Card
+        fields = ['id', 'card_name', 'card_number', 'card_user']
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:

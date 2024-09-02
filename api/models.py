@@ -37,6 +37,13 @@ class Korinish(models.Model):
     def __str__(self):
         return self.nomi
 
+class Card(models.Model):
+    card_name = models.CharField(max_length=300)
+    card_number = models.CharField(max_length=300)
+    card_user = models.CharField(max_length=300)
+
+    def __str__(self):
+        return self.card_name
 
 class Order(models.Model):
     order_id = models.CharField(max_length=8, unique=True)

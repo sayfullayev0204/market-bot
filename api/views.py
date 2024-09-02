@@ -3,11 +3,11 @@ from django.shortcuts import get_object_or_404, render,redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status,viewsets
-from .models import User, Shaxar, Mahsulot, Rayon, Korinish, Order
-from .serializers import UserSerializer, ShaxarSerializer, MahsulotSerializer, RayonSerializer, KorinishSerializer, OrderSerializer
+from .models import User, Shaxar, Mahsulot, Rayon, Korinish, Order,Card
+from .serializers import UserSerializer, ShaxarSerializer, MahsulotSerializer, RayonSerializer, KorinishSerializer, OrderSerializer,CardSerializer
 import threading
 import time
-from .forms import ShaxarForm, MahsulotForm, RayonForm, KorinishForm
+from .forms import ShaxarForm, MahsulotForm, RayonForm, KorinishForm,CardForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -64,6 +64,17 @@ class KorinishViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(rayon_id=rayon_id)
         return self.queryset
 
+class CardViewSet(viewsets.ModelViewSet):
+    queryset = Card.objects.all()
+    serializer_class = CardSerializer
+@api_view(['GET'])
+def get_card(request, pk):
+    try:
+        card = Card.objects.get(pk=pk)
+        serializer = CardSerializer(card)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Card.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 @api_view(['POST'])
 def create_order(request):
     data = request.data
@@ -170,14 +181,14 @@ def order_detail(request, pk):
         order.save()
         send_confirmation_message(order.user.telegram_id, order.order_id)
         messages.success(request, f"Order {order.order_id} has been confirmed.")
-        return redirect('order_list')
+        return redirect('')
     return render(request, 'detail.html', {'order': order})
 
 def send_confirmation_message(telegram_id, order_id):
     import requests
 
     bot_token = '6804578580:AAEdX8AJJP5-mhmM04XTonBr_SQ9HWR1pAU'
-    text = f"Your order {order_id} has been confirmed!"
+    text = f"Sizning {order_id} id dagi buyurtmangiz tasdiqlandi!\n 29 kunda boradi"
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     
     data = {
@@ -333,3 +344,32 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+
+@login_required
+def card_list(request):
+    cards = Card.objects.all()
+    if request.method == 'POST':
+        form = CardForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('card_list')
+    else:
+        form = CardForm()
+    return render(request, 'card_list.html', {'cars': cards, 'form': form})
+
+@login_required
+def card_edit_delete(request, pk):
+    cards = get_object_or_404(Card, pk=pk)
+    if request.method == 'POST':
+        if 'edit' in request.POST:
+            form = CardForm(request.POST, instance=cards)
+            if form.is_valid():
+                form.save()
+                return redirect('card_list')
+        elif 'delete' in request.POST:
+            cards.delete()
+            return redirect('card_list')
+    else:
+        form = CardForm(instance=cards)
+    return render(request, 'form.html', {'form': form, 'shaxar': cards})
