@@ -41,6 +41,13 @@
             padding: 20px;
             border: 1px solid #dee2e6;
             border-radius: 5px;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
         }
         button {
             width: 100%;
@@ -54,7 +61,7 @@
     <ul>
         {% for rayon in rayonlar %}
             <li>
-                {{rayon.mahsulot.shaxar.nomi}} shaxri {{ rayon.nomi }} rayonga - {{ rayon.mahsulot.nomi }}
+                {{ rayon.mahsulot.shaxar.nomi }} shaxri {{ rayon.nomi }} rayonga - {{ rayon.mahsulot.nomi }}
                 <a href="{% url 'rayon_edit_delete' rayon.pk %}">Edit/Delete</a>
             </li>
         {% endfor %}
@@ -64,7 +71,14 @@
     <h2>Add New Rayon</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="form-group">
+            <label for="id_mahsulot">Mahsulot</label>
+            {{ form.mahsulot }}
+        </div>
+        <div class="form-group">
+            <label for="id_nomi">Rayon Nomi</label>
+            {{ form.nomi }}
+        </div>
         <button type="submit" class="btn btn-primary">Add Rayon</button>
     </form>
 

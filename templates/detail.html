@@ -21,10 +21,12 @@
                 </div>
             {% endif %}
         </div>
-        <form method="post" class="order-form">
+        <form method="POST" class="order-form">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Confirm Order</button>
+            <button type="submit" name="confirm" class="btn btn-success">Confirm</button>
+            <button type="submit" name="reject" class="btn btn-danger" style="background-color: red;">Reject</button>
         </form>
+        
     </div>
 <style>
     /* Container styling */

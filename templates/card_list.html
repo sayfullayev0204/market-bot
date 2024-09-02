@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shaxarlar</title>
+    <title>Cards</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -50,23 +50,34 @@
 <body>
     <h1>Cards</h1>
     
-    <!-- List of Shaxarlar -->
+    <!-- List of Cards -->
     <ul>
-        {% for card in cars %}
+        {% for card in cards %}
             <li>
                 <span>{{ card.card_name }}</span>
-                <span>{{card.card_user}}</span>
-                <span>{{card.card_number}}</span>
+                <span>{{ card.card_user }}</span>
+                <span>{{ card.card_number }}</span>
                 <a href="{% url 'card_edit_delete' card.pk %}">Edit/Delete</a>
             </li>
         {% endfor %}
     </ul>
 
-    <!-- Form to Create New Shaxar -->
+    <!-- Form to Create New Card -->
     <h2>Add New Card</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="mb-3">
+            <label for="id_card_name" class="form-label">Card Name</label>
+            <input type="text" class="form-control" id="id_card_name" name="card_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="id_card_user" class="form-label">Card User</label>
+            <input type="text" class="form-control" id="id_card_user" name="card_user" required>
+        </div>
+        <div class="mb-3">
+            <label for="id_card_number" class="form-label">Card Number</label>
+            <input type="text" class="form-control" id="id_card_number" name="card_number" required>
+        </div>
         <button type="submit" class="btn btn-primary">Add Card</button>
     </form>
 

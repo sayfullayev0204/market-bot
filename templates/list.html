@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Order List</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <h1 class="mb-4">Order List</h1>
+        
+        <!-- Search Form -->
+        <div class="mb-4">
+            <input type="text" id="orderSearchInput" class="form-control" placeholder="Search by Order ID">
+        </div>
+
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">
@@ -23,7 +29,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="orderTableBody">
                     {% for order in orders %}
                     <tr>
                         <td>{{ order.order_id }}</td>
@@ -34,9 +40,9 @@
                         <td>{{ order.korinish.nomi }}</td>
                         <td>
                             {% if order.confirmed %}
-                                <span class="badge badge-success">Confirmed</span>
+                                <span class="badge badge-success">Tasdiqlangan</span>
                             {% else %}
-                                <span class="badge badge-danger">Pending</span>
+                                <span class="badge badge-danger">Kutilmoqda</span>
                             {% endif %}
                         </td>
                         <td class="action-buttons">
@@ -50,68 +56,86 @@
             </table>
         </div>
     </div>
-<style>
-    /* Container styling */
-.container {
-    padding: 15px;
-}
+    
+    <style>
+        /* Container styling */
+        .container {
+            padding: 15px;
+        }
 
-/* Table responsive wrapper */
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS devices */
-}
+        /* Table responsive wrapper */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS devices */
+        }
 
-/* Table styling */
-.table {
-    width: 100%; /* Full width to fit the container */
-    border-collapse: collapse;
-}
+        /* Table styling */
+        .table {
+            width: 100%; /* Full width to fit the container */
+            border-collapse: collapse;
+        }
 
-.table th, .table td {
-    padding: 12px; /* Add padding for better readability */
-    text-align: left; /* Align text to the left */
-    border: 1px solid #dee2e6; /* Border for table cells */
-}
+        .table th, .table td {
+            padding: 12px; /* Add padding for better readability */
+            text-align: left; /* Align text to the left */
+            border: 1px solid #dee2e6; /* Border for table cells */
+        }
 
-.table thead th {
-    background-color: #343a40; /* Dark background for the header */
-    color: #fff; /* White text color for the header */
-}
+        .table thead th {
+            background-color: #343a40; /* Dark background for the header */
+            color: #fff; /* White text color for the header */
+        }
 
-.table tbody tr:nth-child(odd) {
-    background-color: #f8f9fa; /* Light background for odd rows */
-}
+        .table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa; /* Light background for odd rows */
+        }
 
-.table tbody tr:nth-child(even) {
-    background-color: #ffffff; /* White background for even rows */
-}
+        .table tbody tr:nth-child(even) {
+            background-color: #ffffff; /* White background for even rows */
+        }
 
-.table .badge-success {
-    background-color: #28a745; /* Green background for confirmed badge */
-    color: #fff; /* White text color for badge */
-}
+        .table .badge-success {
+            background-color: #28a745; /* Green background for confirmed badge */
+            color: #fff; /* White text color for badge */
+        }
 
-.table .badge-danger {
-    background-color: #dc3545; /* Red background for pending badge */
-    color: #fff; /* White text color for badge */
-}
+        .table .badge-danger {
+            background-color: #dc3545; /* Red background for pending badge */
+            color: #fff; /* White text color for badge */
+        }
 
-.table .btn-success {
-    background-color: #28a745; /* Green background for button */
-    border-color: #28a745; /* Border color for button */
-    color: #fff; /* White text color for button */
-}
+        .table .btn-success {
+            background-color: #28a745; /* Green background for button */
+            border-color: #28a745; /* Border color for button */
+            color: #fff; /* White text color for button */
+        }
 
-.table .btn-success:hover {
-    background-color: #218838; /* Darker green on hover */
-    border-color: #1e7e34; /* Darker border color on hover */
-}
+        .table .btn-success:hover {
+            background-color: #218838; /* Darker green on hover */
+            border-color: #1e7e34; /* Darker border color on hover */
+        }
 
-.table .action-buttons a {
-    text-decoration: none; /* Remove underline from links */
-}
-
-</style>    
+        .table .action-buttons a {
+            text-decoration: none; /* Remove underline from links */
+        }
+    </style>
+    
+    <script>
+        // JavaScript for live search
+        document.getElementById('orderSearchInput').addEventListener('input', function() {
+            let input = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#orderTableBody tr');
+            
+            rows.forEach(function(row) {
+                let orderId = row.querySelector('td').textContent.toLowerCase();
+                
+                if (orderId.includes(input)) {
+                    row.style.display = ''; // Show row
+                } else {
+                    row.style.display = 'none'; // Hide row
+                }
+            });
+        });
+    </script>
 </body>
 </html>

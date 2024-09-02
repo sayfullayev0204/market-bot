@@ -54,7 +54,7 @@
     <ul>
         {% for korinish in korinishlar %}
             <li>
-                {{korinish.rayon.mahsulot.shaxar.nomi}} shaxriga {{korinish.rayon.mahsulot.nomi}} - {{ korinish.rayon.nomi }}ga - {{ korinish.nomi }} da
+                {{ korinish.rayon.mahsulot.shaxar.nomi }} shaxriga {{ korinish.rayon.mahsulot.nomi }} - {{ korinish.rayon.nomi }}ga - {{ korinish.nomi }} da
                 <a href="{% url 'korinish_edit_delete' korinish.pk %}">Edit/Delete</a>
             </li>
         {% endfor %}
@@ -64,7 +64,18 @@
     <h2>Add New Korinish</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="mb-3">
+            <label for="id_rayon" class="form-label">Rayon</label>
+            <select class="form-control" id="id_rayon" name="rayon" required>
+                {% for rayon in rayons %}
+                    <option value="{{ rayon.pk }}">{{ rayon.nomi }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="id_nomi" class="form-label">Nomi</label>
+            <input type="text" class="form-control" id="id_nomi" name="nomi" required>
+        </div>
         <button type="submit" class="btn btn-primary">Add Korinish</button>
     </form>
 

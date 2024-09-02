@@ -176,19 +176,30 @@ def order_list(request):
 @login_required
 def order_detail(request, pk):
     order = get_object_or_404(Order, pk=pk)
+    
     if request.method == "POST":
-        order.confirmed = True
-        order.save()
-        send_confirmation_message(order.user.telegram_id, order.order_id)
-        messages.success(request, f"Order {order.order_id} has been confirmed.")
-        return redirect('')
+        if 'confirm' in request.POST:
+            order.confirmed = True
+            order.save()
+            send_confirmation_message(order.user.telegram_id, order.order_id, confirmed=True)
+            messages.success(request, f"Order {order.order_id} has been confirmed.")
+        elif 'reject' in request.POST:
+            send_confirmation_message(order.user.telegram_id, order.order_id, confirmed=False)
+            order.delete()
+            messages.error(request, f"Order {order.order_id} has been rejected and removed from the system.")
+        return redirect('list')  
+    
     return render(request, 'detail.html', {'order': order})
 
-def send_confirmation_message(telegram_id, order_id):
+def send_confirmation_message(telegram_id, order_id, confirmed):
     import requests
 
     bot_token = '6804578580:AAEdX8AJJP5-mhmM04XTonBr_SQ9HWR1pAU'
-    text = f"Sizning {order_id} id dagi buyurtmangiz tasdiqlandi!\n 29 kunda boradi"
+    if confirmed:
+        text = f"Sizning {order_id} id dagi buyurtmangiz tasdiqlandi!\n 29 kunda boradi"
+    else:
+        text = f"Sizning {order_id} id dagi buyurtmangiz rad etildi va tizimdan o'chirildi."
+
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     
     data = {
@@ -198,7 +209,7 @@ def send_confirmation_message(telegram_id, order_id):
     
     response = requests.post(url, data=data)
     if response.status_code == 200:
-        print(f"Confirmation sent to {telegram_id}")
+        print(f"Message sent to {telegram_id}")
     else:
         print(f"Failed to send message to {telegram_id}")
 
@@ -292,6 +303,7 @@ def rayon_edit_delete(request, pk):
 # CRUD Views for Korinish
 @login_required
 def korinish_list(request):
+    rayons = Rayon.objects.all()
     korinishlar = Korinish.objects.all()
     if request.method == 'POST':
         form = KorinishForm(request.POST)
@@ -300,7 +312,7 @@ def korinish_list(request):
             return redirect('korinish_list')
     else:
         form = KorinishForm()
-    return render(request, 'korinishs.html', {'korinishlar': korinishlar, 'form': form})
+    return render(request, 'korinishs.html', {'korinishlar': korinishlar,'rayons':rayons, 'form': form})
 
 @login_required
 def korinish_edit_delete(request, pk):
@@ -356,7 +368,7 @@ def card_list(request):
             return redirect('card_list')
     else:
         form = CardForm()
-    return render(request, 'card_list.html', {'cars': cards, 'form': form})
+    return render(request, 'card_list.html', {'cards': cards, 'form': form})
 
 @login_required
 def card_edit_delete(request, pk):

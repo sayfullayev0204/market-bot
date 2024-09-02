@@ -64,7 +64,10 @@
     <h2>Add New Shaxar</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="mb-3">
+            <label for="id_nomi" class="form-label">Shaxar Nomi</label>
+            {{ form.nomi }}
+        </div>
         <button type="submit" class="btn btn-primary">Add Shaxar</button>
     </form>
 
