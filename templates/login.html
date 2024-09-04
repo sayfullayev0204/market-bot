@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin and Login</title>
     <style>
         body {
@@ -19,7 +21,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            width: 100%;
+            width: 90%;
             max-width: 400px;
             margin-bottom: 20px;
         }
@@ -27,6 +29,7 @@
             color: #333;
             text-align: center;
             margin-bottom: 20px;
+            font-size: 24px;
         }
         form {
             display: flex;
@@ -38,12 +41,14 @@
         label {
             margin-bottom: 5px;
             color: #666;
+            font-size: 14px;
         }
         input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 14px;
         }
         button {
             padding: 10px;
@@ -53,15 +58,38 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #4cae4c;
         }
         .login-button {
             background-color: #007bff;
+            margin-top: 10px;
         }
         .login-button:hover {
             background-color: #0056b3;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            label {
+                font-size: 13px;
+            }
+            input {
+                padding: 8px;
+                font-size: 13px;
+            }
+            button {
+                padding: 8px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
