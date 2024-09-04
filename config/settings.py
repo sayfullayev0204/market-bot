@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', '.vercel.app','market-bot-production.up.railway.app', "market-bot-fpv8.onrender.com"]
 
+CSRF_TRUSTED_ORIGINS = ["https://market-bot-production.up.railway.app"]
 # Application definition
 
 INSTALLED_APPS = [
