@@ -27,7 +27,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '.vercel.app','*.railway.app', "market-bot-fpv8.onrender.com"]
+ALLOWED_HOSTS = ['*', '.vercel.app','market-bot-production.up.railway.app', "market-bot-fpv8.onrender.com"]
 
 # Application definition
 
@@ -143,7 +143,8 @@ REST_FRAMEWORK = {
 }
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
-    "https://market-bot-fpv8.onrender.com"
+    "https://market-bot-fpv8.onrender.com",
+    "https://market-bot-production.up.railway.app"
 ]
 
 CORS_ALLOW_METHODS = [
