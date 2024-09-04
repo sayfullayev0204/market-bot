@@ -3,24 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Admin Panel</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            background-color: #f7f7f7;
+        }
+        .header {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+
         .custom-div {
             padding: 30px;
             text-align: center;
             font-size: 18px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .custom-div:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-success, .btn-primary, .btn-secondary, .btn-danger, .btn-warning {
+            border: none;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .btn {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
         }
     </style>
 </head>
-<body class="py-5">
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1>Admin Panel</h1>
+    </div>
+
+    <!-- Main Content -->
     <div class="container">
-        <div class="col-12">
-            <a href="{% url 'add_admin' %}" class="btn btn-success">ADD Admin</a>
+        <div class="col-12 mb-4">
+            <a href="{% url 'add_admin' %}" class="btn btn-success w-100 custom-div">Admin qo'shish</a>
         </div>
-    </div> <br>
-    <div class="container">
         <div class="row g-3">
             <div class="col-12 col-sm-6">
                 <a href="{% url 'list' %}" class="btn btn-primary w-100 custom-div">Orderlar</a>
@@ -38,7 +96,7 @@
                 <a href="{% url 'korinish_list' %}" class="btn btn-warning w-100 custom-div">Ko'rinishlar</a>
             </div>
             <div class="col-12 col-sm-6">
-                <a href="{% url 'card_list' %}" class="btn btn-primary w-100 custom-div">Kartatlar</a>
+                <a href="{% url 'card_list' %}" class="btn btn-primary w-100 custom-div">Kartalar</a>
             </div>
         </div>
     </div>

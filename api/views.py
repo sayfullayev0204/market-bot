@@ -162,7 +162,7 @@ def home(request):
 
 @login_required
 def order_list(request):
-    orders = Order.objects.filter(receipt_image__isnull=True).order_by('-created_at')
+    orders = Order.objects.filter(receipt_image__isnull=False).order_by('-created_at')
     return render(request, 'list.html', {'orders': orders})
 
 # Order Detail View
