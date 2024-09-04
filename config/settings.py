@@ -27,8 +27,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '.vercel.app',"market-bot-fpv8.onrender.com"]
-
+ALLOWED_HOSTS = ['*', '.vercel.app','*.railway.app', "market-bot-fpv8.onrender.com"]
 
 # Application definition
 
