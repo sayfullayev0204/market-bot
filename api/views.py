@@ -29,11 +29,16 @@ def check_user(request, telegram_id):
         return Response(serializer.data)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
+class NoPagination(PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response(data)
 class ShaxarViewSet(viewsets.ModelViewSet):
     queryset = Shaxar.objects.all()
     serializer_class = ShaxarSerializer
-
+    pagination_class = NoPagination
 class MahsulotViewSet(viewsets.ModelViewSet):
     queryset = Mahsulot.objects.all()
     serializer_class = MahsulotSerializer
