@@ -39,10 +39,11 @@ class MahsulotViewSet(viewsets.ModelViewSet):
     serializer_class = MahsulotSerializer
 
     def get_queryset(self):
-        shaxar_id = self.request.query_params.get('shaxar_id')
+        queryset = super().get_queryset()
+        shaxar_id = self.request.query_params.get('shaxar_id', None)
         if shaxar_id:
-            return self.queryset.filter(shaxar_id=shaxar_id)
-        return self.queryset
+            queryset = queryset.filter(shaxar_id=shaxar_id)
+        return queryset
 
 class RayonViewSet(viewsets.ModelViewSet):
     queryset = Rayon.objects.all()
@@ -138,14 +139,6 @@ def confirm_payment(request, order_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-def check_order_id(request):
-    order_id = request.GET.get('order_id')
-    if not order_id:
-        return JsonResponse({'error': 'Order ID not provided'}, status=400)
-
-    exists = Order.objects.filter(order_id=order_id).exists()
-    return JsonResponse({'exists': exists})
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -169,7 +162,7 @@ def home(request):
 
 @login_required
 def order_list(request):
-    orders = Order.objects.filter(receipt_image__isnull=False)
+    orders = Order.objects.filter(receipt_image__isnull=True).order_by('-created_at')
     return render(request, 'list.html', {'orders': orders})
 
 # Order Detail View
@@ -194,11 +187,11 @@ def order_detail(request, pk):
 def send_confirmation_message(telegram_id, order_id, confirmed):
     import requests
 
-    bot_token = '6804578580:AAEdX8AJJP5-mhmM04XTonBr_SQ9HWR1pAU'
+    bot_token = '6804578580:AAEoZCZLRNUmr36YOWmriEO9HSVMsjTVOnc'
     if confirmed:
-        text = f"Sizning {order_id} id dagi buyurtmangiz tasdiqlandi!\n 29 kunda boradi"
+        text = f"Ваш заказ с идентификатором {order_id} подтвержден!\n Доставка через 29 дней."
     else:
-        text = f"Sizning {order_id} id dagi buyurtmangiz rad etildi va tizimdan o'chirildi."
+        text = f"Ваш заказ с идентификатором {order_id} отклонен и удален из системы."
 
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     
@@ -385,3 +378,50 @@ def card_edit_delete(request, pk):
     else:
         form = CardForm(instance=cards)
     return render(request, 'form.html', {'form': form, 'shaxar': cards})
+
+
+
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .models import Order
+
+@csrf_exempt
+@require_POST
+def save_payment(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+    
+    # Extract payment amount and receipt image from the request
+    payment_amount = request.POST.get('payment_amount')
+    receipt_image = request.FILES.get('receipt_image')
+    
+    if payment_amount:
+        try:
+            order.payment_amount = float(payment_amount)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid payment amount'}, status=400)
+    
+    if receipt_image:
+        order.receipt_image = receipt_image
+
+    order.save()
+    
+    return JsonResponse({'status': 'Payment details saved successfully'})
+
+# Optionally, you can create a view to get order details for debugging
+def get_order_details(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+    data = {
+        'order_id': order.order_id,
+        'user': order.user.id,
+        'shaxar': order.shaxar.id,
+        'mahsulot': order.mahsulot.id,
+        'rayon': order.rayon.id,
+        'korinish': order.korinish.id,
+        'created_at': order.created_at.isoformat(),
+        'confirmed': order.confirmed,
+        'payment_amount': order.payment_amount,
+        'receipt_image': order.receipt_image.url if order.receipt_image else None,
+    }
+    return JsonResponse(data)

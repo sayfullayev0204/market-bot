@@ -19,8 +19,6 @@ urlpatterns = [
     path('korinish/<int:pk>/', KorinishViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='korinish_detail'),
     
     path('orders/create_order/', create_order, name='create_order'),
-    path('orders/confirm_payment/', confirm_payment, name='confirm_payment'),
-    path('orders/check_id/', check_order_id, name='check_order_id'),
     
     
     path('order/<str:order_id>/', OrderViewSet.as_view({'get': 'retrieve','delete': 'destroy'}), name='order-delete'),
@@ -28,6 +26,9 @@ urlpatterns = [
     path('orders/<int:pk>/', order_detail, name='detail'),
 
     path('orders/confirm_payment/<str:order_id>/', confirm_payment, name='confirm_payment'),
+
+    path('order/<str:order_id>/payment/', save_payment, name='save_payment'),
+    path('order/<str:order_id>/details/', get_order_details, name='get_order_details'),
 
 
 

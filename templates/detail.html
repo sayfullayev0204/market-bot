@@ -3,107 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .order-title {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .order-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .order-details p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .order-details div {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .order-details div:last-child {
+            margin-right: 0;
+        }
+        .receipt-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .order-form {
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: #ffffff;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: #ffffff;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1 class="order-title">Order {{ order.order_id }} Details</h1>
         <div class="order-details">
-            <p><strong>User:</strong> {{ order.user.name }}</p>
-            <p><strong>Product:</strong> {{ order.mahsulot.nomi }}</p>
-            <p><strong>City:</strong> {{ order.shaxar.nomi }}</p>
-            <p><strong>District:</strong> {{ order.rayon.nomi }}</p>
-            <p><strong>Appearance:</strong> {{ order.korinish.nomi }}</p>
-            <p><strong>Payment Amount:</strong> {{ order.payment_amount }}</p>
-            {% if order.receipt_image %}
+            <div>
+                <p><strong>User:</strong> {{ order.user.name }}</p>
+                <p><strong>Product:</strong> {{ order.mahsulot.nomi }}</p>
+                <p><strong>City:</strong> {{ order.shaxar.nomi }}</p>
+                <p><strong>District:</strong> {{ order.rayon.nomi }}</p>
+                <p><strong>Appearance:</strong> {{ order.korinish.nomi }}</p>
+                <p><strong>Payment Amount:</strong> {{ order.payment_amount }}</p>
+            </div>
+            <div>
+                {% if order.receipt_image %}
                 <div class="receipt-image">
                     <img src="{{ order.receipt_image.url }}" alt="Receipt Image">
                 </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
         <form method="POST" class="order-form">
             {% csrf_token %}
             <button type="submit" name="confirm" class="btn btn-success">Confirm</button>
-            <button type="submit" name="reject" class="btn btn-danger" style="background-color: red;">Reject</button>
+            <button type="submit" name="reject" class="btn btn-danger">Reject</button>
         </form>
-        
-    </div>
-<style>
-    /* Container styling */
-.container {
-    padding: 20px;
-    max-width: 900px;
-    margin: 0 auto;
-    background-color: #f9f9f9; /* Light background for the container */
-    border-radius: 10px; /* Rounded corners for the container */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
-}
-
-/* Heading styling */
-.order-title {
-    font-size: 2em;
-    margin-bottom: 20px;
-    color: #343a40; /* Dark color for the heading */
-    text-align: center; /* Center align the heading */
-}
-
-/* Order details styling */
-.order-details {
-    background: #fff; /* White background for details section */
-    padding: 20px;
-    border-radius: 8px; /* Rounded corners for the details section */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for details section */
-}
-
-.order-details p {
-    font-size: 1.1em;
-    margin-bottom: 15px;
-}
-
-.order-details strong {
-    font-weight: 600;
-    color: #007bff; /* Primary color for labels */
-}
-
-/* Receipt image styling */
-.receipt-image {
-    margin-top: 20px;
-    text-align: center; /* Center align the image */
-}
-
-.receipt-image img {
-    max-width: 100%; /* Make sure the image scales responsively */
-    height: auto;
-    border-radius: 8px; /* Rounded corners for the image */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for the image */
-}
-
-/* Form styling */
-.order-form {
-    text-align: center; /* Center align the form */
-    margin-top: 30px;
-}
-
-.order-form .btn {
-    padding: 12px 24px;
-    font-size: 1.1em;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background-color: #007bff; /* Primary button color */
-    color: #fff;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
-}
-
-.order-form .btn:hover {
-    background-color: #0056b3; /* Darker color on hover */
-    transform: translateY(-2px); /* Slight lift effect on hover */
-}
-
-.order-form .btn:active {
-    transform: translateY(1px); /* Slight drop effect when button is clicked */
-}
-
-</style>    
+    </div>  
 </body>
 </html>
