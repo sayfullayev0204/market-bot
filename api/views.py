@@ -33,7 +33,6 @@ def check_user(request, telegram_id):
 class ShaxarViewSet(viewsets.ModelViewSet):
     queryset = Shaxar.objects.all()
     serializer_class = ShaxarSerializer
-    pagination_class = None
 class MahsulotViewSet(viewsets.ModelViewSet):
     queryset = Mahsulot.objects.all()
     serializer_class = MahsulotSerializer
