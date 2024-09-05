@@ -186,7 +186,7 @@ def order_detail(request, pk):
 def send_confirmation_message(telegram_id, order_id, confirmed):
     import requests
 
-    bot_token = '6804578580:AAF_urAMl6LAy20iaFehqAxsOEFd4K1P8Bs'
+    bot_token = '6804578580:AAFgkIvNyRzzLRhaouWCzyBRJ-87jUk6OAs'
     if confirmed:
         text = f"Ваш заказ с идентификатором {order_id} подтвержден!\n Доставка через 29 дней."
     else:
